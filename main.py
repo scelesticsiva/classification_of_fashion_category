@@ -16,13 +16,16 @@ def train():
                          "loss":tf.nn.softmax_cross_entropy_with_logits,\
                          }
 
-    model = base_model(base_model_config).inference()
+    #model_obj = base_model(base_model_config)
+    model = base_model(base_model_config)
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
         img,label = sess.run(train_data_loader)
-        print(img.shape)
-        print(label)
+        feed_dict_ = dict(zip([model.x,model.y],[img,label]))
+        to_compute = [model.optimizer,model.output,model.calculated_loss]
+        _,out_,loss_ = sess.run(to_compute,feed_dict=feed_dict_)
+        print(out_,loss_)
 
 if __name__ == "__main__":
     train()

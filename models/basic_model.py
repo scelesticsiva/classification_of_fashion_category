@@ -7,11 +7,15 @@ class base_model(object):
     def __init__(self,config):
         self.epochs = config["epochs"]
         self.batch_size = config["batch_size"]
-        self.optimizer = config["optimizer"]
+        self.optimizer_ = config["optimizer"]
         self.lr = config["lr"]
         self.loss = config["loss"]
         #self.save_model_dir = config["model_dir"]
         #self.tensorboard_dir = config["tensorboard_dir"]
+
+        self.inference()
+        self.calculate_loss()
+        self.optimize()
 
     def weights_(self,name,shape,initializer = tf.contrib.layers.xavier_initializer()):
         return tf.get_variable(name = name,shape = shape,initializer = initializer)
@@ -26,14 +30,14 @@ class base_model(object):
         return tf.nn.max_pool(x_,ksize=[1,kernel,kernel,1],strides=[1,strides,strides,1],padding="SAME")
 
     def inference(self):
-        x = tf.placeholder(tf.float32,[None,224,224,3])
-        y = tf.placeholder(tf.float32,[None,3])
+        self.x = tf.placeholder(tf.float32,[None,224,224,3])
+        self.y = tf.placeholder(tf.float32,[None,3])
 
         with tf.device("cpu:0"):
             with tf.name_scope("conv_1"):
-                conv_1_w = self.weights_("conv_1w",[3,3,x.shape[-1],128])
+                conv_1_w = self.weights_("conv_1w",[3,3,self.x.shape[-1],128])
                 conv_1_b = self.biases_("conv_1b",[128])
-                conv_1 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(x,conv_1_w),conv_1_b))
+                conv_1 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(self.x,conv_1_w),conv_1_b))
                 max_pool_conv_1 = self.max_pool(conv_1)
 
             with tf.name_scope("conv_2"):
@@ -56,18 +60,15 @@ class base_model(object):
             with tf.name_scope("final"):
                 full_3_w = self.weights_("full_3w",[512,3])
                 full_3_b = self.biases_("full_3b",[3])
-                output = tf.nn.bias_add(tf.matmul(full_2,full_3_w),full_3_b)
+                self.output = tf.nn.bias_add(tf.matmul(full_2,full_3_w),full_3_b)
 
-        return {"inputs":[x,y],"output":output}
+        return {"inputs":[self.x,self.y],"output":self.output}
 
     def calculate_loss(self):
-        prediction = self.inference()
-        loss = self.loss(logits = prediction["output"],labels = prediction["inputs"][1])
-        return loss
+        self.calculated_loss = tf.reduce_mean(self.loss(logits = self.output,labels = self.y))
 
     def optimize(self):
-        optimizer = self.optimizer(self.calculate_loss()).minimize(self.lr)
-        return optimizer
+        self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)
 
 
 

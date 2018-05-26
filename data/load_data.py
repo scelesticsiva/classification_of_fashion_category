@@ -3,6 +3,7 @@
 """
 
 import tensorflow as tf
+import numpy as np
 
 class data_loader(object):
     def __init__(self,filename):
@@ -11,11 +12,14 @@ class data_loader(object):
         """
         self.list_of_images, self.list_of_labels = [], []
         label_dict = {"Jeans": 0, "Sweatpants": 1, "Blazer": 2}
+        number_of_labels = len(label_dict)
         with open(filename) as file:
             for each in file:
                 file_name = each.split(" ")[0]
                 self.list_of_images.append(file_name)
-                self.list_of_labels.append([label_dict[i] for i in label_dict if i in file_name][0])
+                self.list_of_labels.append([np.eye(number_of_labels)[label_dict[i]] for i in label_dict if i in file_name][0])
+        self.list_of_images = np.array(self.list_of_images)
+        self.list_of_labels = np.array(self.list_of_labels)
 
     def _parse_function(self,img_name,label):
         """
