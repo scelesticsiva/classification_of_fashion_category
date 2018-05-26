@@ -33,33 +33,35 @@ class base_model(object):
         self.x = tf.placeholder(tf.float32,[None,224,224,3])
         self.y = tf.placeholder(tf.float32,[None,3])
 
-        #with tf.device("cpu:0"):
-        with tf.name_scope("conv_1"):
-            conv_1_w = self.weights_("conv_1w",[3,3,self.x.shape[-1],128])
-            conv_1_b = self.biases_("conv_1b",[128])
-            conv_1 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(self.x,conv_1_w),conv_1_b))
+        with tf.device("cpu:0"):
+            with tf.name_scope("conv_1"):
+                conv_1_w = self.weights_("conv_1w",[3,3,self.x.shape[-1],128])
+                conv_1_b = self.biases_("conv_1b",[128])
+
+            with tf.name_scope("conv_2"):
+                conv_2_w = self.weights_("conv_2w",[3,3,128,256])
+                conv_2_b = self.biases_("conv_2b",[256])
+
+            with tf.name_scope("full_1"):
+                full_1_w = self.weights_("full_1w",[56*56*256,1024])
+                full_1_b = self.biases_("full_1b",[1024])
+
+            with tf.name_scope("full_2"):
+                full_2_w = self.weights_("full_2w",[1024,512])
+                full_2_b = self.biases_("full_2b",[512])
+
+            with tf.name_scope("final"):
+                full_3_w = self.weights_("full_3w",[512,3])
+                full_3_b = self.biases_("full_3b",[3])
+
+        with tf.device("cpu:0"):
+            conv_1 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(self.x, conv_1_w), conv_1_b))
             max_pool_conv_1 = self.max_pool(conv_1)
-
-        with tf.name_scope("conv_2"):
-            conv_2_w = self.weights_("conv_2w",[3,3,128,256])
-            conv_2_b = self.biases_("conv_2b",[256])
-            conv_2 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1,conv_2_w),conv_2_b))
+            conv_2 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1, conv_2_w), conv_2_b))
             max_pool_conv_2 = self.max_pool(conv_2)
-
-        with tf.name_scope("full_1"):
-            full_1_w = self.weights_("full_1w",[56*56*256,1024])
-            full_1_b = self.biases_("full_1b",[1024])
-            reshaped_last_conv = tf.reshape(max_pool_conv_2,(-1,56*56*256))
-            full_1 = tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv,full_1_w),full_1_b))
-
-        with tf.name_scope("full_2"):
-            full_2_w = self.weights_("full_2w",[1024,512])
-            full_2_b = self.biases_("full_2b",[512])
-            full_2 = tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1,full_2_w),full_2_b))
-
-        with tf.name_scope("final"):
-            full_3_w = self.weights_("full_3w",[512,3])
-            full_3_b = self.biases_("full_3b",[3])
+            reshaped_last_conv = tf.reshape(max_pool_conv_2, (-1, 56 * 56 * 256))
+            full_1 = tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv, full_1_w), full_1_b))
+            full_2 = tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b))
             self.output = tf.nn.bias_add(tf.matmul(full_2,full_3_w),full_3_b)
 
         return {"inputs":[self.x,self.y],"output":self.output}
