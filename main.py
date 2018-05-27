@@ -6,13 +6,13 @@ from models.basic_model import base_model
 import tensorflow as tf
 import numpy as np
 TRAIN_FILE_NAME = "/Users/siva/Documents/falconai/training.txt"
-BATCH_SIZE = 128
 
 base_model_config = {"epochs":10,\
                          "batch_size":10,\
                          "optimizer":tf.train.AdamOptimizer,\
                          "lr":0.001,\
                          "loss":tf.nn.softmax_cross_entropy_with_logits,\
+                         "dropout":0.5
                          }
 
 def train():
@@ -26,6 +26,7 @@ def train():
         for e in range(base_model_config["epochs"]):
             print("*********** EPOCH %s ***********"%str(e))
             sess.run(train_op)
+            model_obj.set_keep_probability(base_model_config["dropout"])
             ACCURACY_LIST,LOSS_LIST,TEST_LOSS_LIST,TEST_ACCURACY_LIST = [],[],[],[]
             try:
                 while True:
@@ -35,6 +36,7 @@ def train():
             except:
                 print("Train Accuracy:",np.mean(ACCURACY_LIST),"|","Train Loss:",np.mean(LOSS_LIST))
             sess.run(val_op)
+            model_obj.set_keep_probability(1.0)
             try:
                 while(True):
                     test_acc,test_loss = sess.run([model["acc"],model["loss"]])

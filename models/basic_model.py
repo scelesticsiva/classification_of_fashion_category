@@ -10,6 +10,7 @@ class base_model(object):
         self.optimizer_ = config["optimizer"]
         self.lr = config["lr"]
         self.loss = config["loss"]
+        self.keep_probability = config["dropout"]
         self.x = x_
         self.y = y_
 
@@ -24,6 +25,9 @@ class base_model(object):
 
     def max_pool(self,x_,kernel = 3,strides = 2):
         return tf.nn.max_pool(x_,ksize=[1,kernel,kernel,1],strides=[1,strides,strides,1],padding="SAME")
+
+    def set_keep_probability(self,value):
+        self.keep_probability = value
 
     def inference(self):
 
@@ -49,13 +53,13 @@ class base_model(object):
                 full_3_b = self.biases_("full_3b",[3])
 
         with tf.device("cpu:0"):
-            conv_1 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(self.x, conv_1_w), conv_1_b))
+            conv_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(self.x, conv_1_w), conv_1_b)),self.keep_probability)
             max_pool_conv_1 = self.max_pool(conv_1)
-            conv_2 = tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1, conv_2_w), conv_2_b))
+            conv_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1, conv_2_w), conv_2_b)),self.keep_probability)
             max_pool_conv_2 = self.max_pool(conv_2)
             reshaped_last_conv = tf.reshape(max_pool_conv_2, (-1, 56 * 56 * 48))
-            full_1 = tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv, full_1_w), full_1_b))
-            full_2 = tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b))
+            full_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv, full_1_w), full_1_b)),self.keep_probability)
+            full_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b)),self.keep_probability)
             self.output = tf.nn.bias_add(tf.matmul(full_2,full_3_w),full_3_b)
 
         self.calculated_loss = tf.reduce_mean(self.loss(logits=self.output, labels=self.y))
