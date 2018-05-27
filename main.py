@@ -9,7 +9,7 @@ TRAIN_FILE_NAME = "/Users/siva/Documents/falconai/training.txt"
 BATCH_SIZE = 128
 
 def train():
-    train_data,train_labels,data_itr = data_loader(TRAIN_FILE_NAME).data_loader_main(BATCH_SIZE)
+    train_data,train_labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(BATCH_SIZE)
     base_model_config = {"epochs":10,\
                          "batch_size":10,\
                          "optimizer":tf.train.AdamOptimizer,\
@@ -22,23 +22,41 @@ def train():
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
-        sess.run(data_itr.initializer)
-        for _ in range(1):
+        for _ in range(20):
+            sess.run(train_op)
             ACCURACY_LIST = []
             LOSS_LIST = []
+            TEST_ACCURACY_LIST = []
+            TEST_LOSS_LIST = []
             try:
+                count = 0
                 while True:
-                    # imags,lbs = sess.run([train_data,train_labels])
-                    # print(lbs)
+                    count += 1
                     to_compute = [model["optimizer"],model["acc"],model["loss"]]
                     _,acc_,loss_ = sess.run(to_compute)
-                    print(acc_,loss_)
+                    if count % 50 == 0:
+                        print(acc_,loss_)
                     ACCURACY_LIST.append(acc_)
                     LOSS_LIST.append(loss_)
             except:
-                print("Completed One round of training")
+                print("*********** Training ************")
                 print(np.mean(ACCURACY_LIST))
                 print(np.mean(LOSS_LIST))
+            sess.run(val_op)
+            try:
+                count = 0
+                while(True):
+                    count += 1
+                    to_compute = [model["acc"],model["loss"]]
+                    test_acc,test_loss = sess.run(to_compute)
+                    if count % 50 == 0:
+                        print(test_acc,test_loss)
+                    TEST_ACCURACY_LIST.append(test_acc)
+                    TEST_LOSS_LIST.append(test_loss)
+            except:
+                print("*********** Validation ************")
+                print(np.mean(TEST_ACCURACY_LIST))
+                print(np.mean(TEST_LOSS_LIST))
 
 if __name__ == "__main__":
     train()

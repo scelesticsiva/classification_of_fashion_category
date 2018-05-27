@@ -37,21 +37,35 @@ class data_loader(object):
         image_resized = tf.image.convert_image_dtype(image_resized,dtype = tf.float32)
         return image_resized, label
 
-    def data_loader_main(self,BATCH_SIZE):
+    def data_loader_train(self,BATCH_SIZE):
         """
-        Main function that created data iterator
+        Main function that created train data iterator
         :param BATCH_SIZE: [int] Batch size required
         :return: [tensor] next batch of data
         """
         self.filenames = tf.constant(self.train_data)
-        self.labels = tf.constant(self.train_labels)
+        self.categories = tf.constant(self.train_labels)
 
-        dataset = tf.data.Dataset.from_tensor_slices((self.filenames,self.labels))
-        dataset = dataset.map(self._parse_function)
-        dataset = dataset.batch(BATCH_SIZE)
+        self.val_filenames = tf.constant(self.val_data)
+        self.val_categories = tf.constant(self.val_labels)
 
-        #data_iterator = dataset.make_one_shot_iterator()
-        data_iterator = dataset.make_initializable_iterator()
-        next_data,next_labels = data_iterator.get_next()
+        train_dataset = tf.data.Dataset.from_tensor_slices((self.filenames,self.categories))
+        train_dataset = train_dataset.map(self._parse_function)
+        train_dataset = train_dataset.batch(BATCH_SIZE)
 
-        return [next_data,next_labels,data_iterator]
+        val_dataset = tf.data.Dataset.from_tensor_slices((self.val_data,self.val_categories))
+        val_dataset = val_dataset.map(self._parse_function)
+        val_dataset = val_dataset.batch(BATCH_SIZE)
+
+
+        #data_iterator = dataset.make_initializable_iterator()
+        #next_data,next_labels = data_iterator.get_next()
+
+        iterator = tf.data.Iterator.from_structure(train_dataset.output_types,train_dataset.output_shapes)
+
+        next_data,next_labels = iterator.get_next()
+
+        train_op = iterator.make_initializer(train_dataset)
+        val_op = iterator.make_initializer(val_dataset)
+
+        return [next_data,next_labels,train_op,val_op]
