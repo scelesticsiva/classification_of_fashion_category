@@ -9,7 +9,8 @@ import numpy as np
 TRAIN_FILE_NAME = "/Users/siva/Documents/falconai/training.txt"
 
 def train(base_model_config):
-    data,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"])
+    with tf.device("/cpu:0"):
+        data,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"])
 
     #--------------- Different models ----------------#
     #model_obj = base_model(base_model_config,data,labels)

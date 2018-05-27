@@ -80,14 +80,12 @@ class data_loader(object):
         train_dataset = tf.data.Dataset.from_tensor_slices((self.filenames,self.categories))
         train_dataset = train_dataset.map(self._parse_function_train)
         train_dataset = train_dataset.batch(BATCH_SIZE)
+        train_dataset = train_dataset.prefetch(buffer_size=104)
 
         val_dataset = tf.data.Dataset.from_tensor_slices((self.val_data,self.val_categories))
         val_dataset = val_dataset.map(self._parse_function_val)
         val_dataset = val_dataset.batch(BATCH_SIZE)
-
-
-        #data_iterator = dataset.make_initializable_iterator()
-        #next_data,next_labels = data_iterator.get_next()
+        val_dataset = val_dataset.prefetch(buffer_size=104)
 
         iterator = tf.data.Iterator.from_structure(train_dataset.output_types,train_dataset.output_shapes)
 

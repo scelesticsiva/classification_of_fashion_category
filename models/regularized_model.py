@@ -32,7 +32,7 @@ class regularized_model(object):
 
     def inference(self):
 
-        with tf.device("cpu:0"):
+        with tf.device("/cpu:0"):
             with tf.name_scope("conv_1"):
                 conv_1_w = self.weights_("conv_1w",[3,3,3,32])
                 conv_1_b = self.biases_("conv_1b",[32])
@@ -57,7 +57,7 @@ class regularized_model(object):
                 full_3_w = self.weights_("full_3w",[64,3])
                 full_3_b = self.biases_("full_3b",[3])
 
-        with tf.device("cpu:0"):
+        with tf.device("/cpu:0"):
             conv_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(self.x, conv_1_w), conv_1_b)),self.keep_probability)
             max_pool_conv_1 = self.max_pool(conv_1)
             conv_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1, conv_2_w), conv_2_b)),self.keep_probability)
