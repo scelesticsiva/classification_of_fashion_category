@@ -22,7 +22,7 @@ def train():
     with tf.Session() as sess:
         sess.run(init)
         sess.run(data_itr.initializer)
-        for _ in range(10):
+        for _ in range(2):
             ACCURACY_LIST = []
             LOSS_LIST = []
             try:
