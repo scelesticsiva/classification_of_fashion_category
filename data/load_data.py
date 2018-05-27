@@ -5,6 +5,7 @@
 import tensorflow as tf
 import numpy as np
 from sklearn.model_selection import train_test_split
+from collections import Counter
 
 class data_loader(object):
     def __init__(self,filename):
@@ -13,6 +14,7 @@ class data_loader(object):
         """
         self.list_of_images, self.list_of_labels = [], []
         label_dict = {"Jeans": 0, "Sweatpants": 1, "Blazer": 2}
+        label_dict_rev = {0:"Jeans",1:"Sweatpants", 2:"Blazer"}
         number_of_labels = len(label_dict)
         with open(filename) as file:
             for each in file:
@@ -22,6 +24,14 @@ class data_loader(object):
         self.list_of_images = np.array(self.list_of_images)
         self.list_of_labels = np.array(self.list_of_labels)
         self.train_data,self.val_data,self.train_labels,self.val_labels = train_test_split(self.list_of_images,self.list_of_labels)
+        train_args = np.argmax(self.train_labels,axis = 1)
+        val_args = np.argmax(self.val_labels,axis = 1)
+        counter_train = Counter(train_args)
+        counter_val = Counter(val_args)
+        print("************ Data Statistics *************")
+        print("Training:",sorted([(label_dict_rev[each],counter_train[each]) for each in counter_train]))
+        print("Validation:",sorted([(label_dict_rev[each], counter_val[each]) for each in counter_val]))
+        print("******************************************")
 
 
     def _parse_function(self,img_name,label):
