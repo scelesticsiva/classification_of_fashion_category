@@ -6,7 +6,7 @@ from models.basic_model import base_model
 import tensorflow as tf
 import numpy as np
 TRAIN_FILE_NAME = "/Users/siva/Documents/falconai/training.txt"
-BATCH_SIZE = 5
+BATCH_SIZE = 128
 
 def train():
     train_data,train_labels,data_itr = data_loader(TRAIN_FILE_NAME).data_loader_main(BATCH_SIZE)
@@ -17,17 +17,20 @@ def train():
                          "loss":tf.nn.softmax_cross_entropy_with_logits,\
                          }
 
-    model = base_model(base_model_config,train_data,train_labels)
+    model_obj = base_model(base_model_config,train_data,train_labels)
+    model = model_obj.inference()
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
         sess.run(data_itr.initializer)
-        for _ in range(2):
+        for _ in range(1):
             ACCURACY_LIST = []
             LOSS_LIST = []
             try:
                 while True:
-                    to_compute = [model.optimizer,model.calculated_acc,model.calculated_loss]
+                    # imags,lbs = sess.run([train_data,train_labels])
+                    # print(lbs)
+                    to_compute = [model["optimizer"],model["acc"],model["loss"]]
                     _,acc_,loss_ = sess.run(to_compute)
                     print(acc_,loss_)
                     ACCURACY_LIST.append(acc_)

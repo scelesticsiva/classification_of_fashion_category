@@ -4,6 +4,7 @@
 
 import tensorflow as tf
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 class data_loader(object):
     def __init__(self,filename):
@@ -20,6 +21,8 @@ class data_loader(object):
                 self.list_of_labels.append([np.eye(number_of_labels)[label_dict[i]] for i in label_dict if i in file_name][0])
         self.list_of_images = np.array(self.list_of_images)
         self.list_of_labels = np.array(self.list_of_labels)
+        self.train_data,self.val_data,self.train_labels,self.val_labels = train_test_split(self.list_of_images,self.list_of_labels)
+
 
     def _parse_function(self,img_name,label):
         """
@@ -40,8 +43,8 @@ class data_loader(object):
         :param BATCH_SIZE: [int] Batch size required
         :return: [tensor] next batch of data
         """
-        self.filenames = tf.constant(self.list_of_images)
-        self.labels = tf.constant(self.list_of_labels)
+        self.filenames = tf.constant(self.train_data)
+        self.labels = tf.constant(self.train_labels)
 
         dataset = tf.data.Dataset.from_tensor_slices((self.filenames,self.labels))
         dataset = dataset.map(self._parse_function)

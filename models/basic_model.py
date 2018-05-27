@@ -10,15 +10,8 @@ class base_model(object):
         self.optimizer_ = config["optimizer"]
         self.lr = config["lr"]
         self.loss = config["loss"]
-        #self.save_model_dir = config["model_dir"]
-        #self.tensorboard_dir = config["tensorboard_dir"]
         self.x = x_
         self.y = y_
-
-        self.inference()
-        self.calculate_loss()
-        self.calculate_accuracy()
-        self.optimize()
 
     def weights_(self,name,shape,initializer = tf.contrib.layers.xavier_initializer()):
         return tf.get_variable(name = name,shape = shape,initializer = initializer)
@@ -65,16 +58,20 @@ class base_model(object):
             full_2 = tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b))
             self.output = tf.nn.bias_add(tf.matmul(full_2,full_3_w),full_3_b)
 
-        return {"inputs":[self.x,self.y],"output":self.output}
-
-    def calculate_loss(self):
-        self.calculated_loss = tf.reduce_mean(self.loss(logits = self.output,labels = self.y))
-
-    def calculate_accuracy(self):
-        self.calculated_acc = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(self.output,axis = 1),tf.argmax(self.y,axis = 1)),tf.float32))
-
-    def optimize(self):
+        self.calculated_loss = tf.reduce_mean(self.loss(logits=self.output, labels=self.y))
+        self.calculated_acc = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(input=self.y,axis = 1),tf.argmax(input=self.output,axis = 1)),tf.float32))
         self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)
+
+        return {"inputs":[self.x,self.y],"output":self.output,"optimizer":self.optimizer,"acc":self.calculated_acc,"loss":self.calculated_loss}
+
+    # def calculate_loss(self):
+    #     self.calculated_loss = tf.reduce_mean(self.loss(logits = self.output,labels = self.y))
+    #
+    # def calculate_accuracy(self):
+    #     self.calculated_acc = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(self.output,axis = 1),tf.argmax(self.y,axis = 1)),tf.float32))
+    #
+    # def optimize(self):
+    #     self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)
 
 
 
