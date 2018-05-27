@@ -4,7 +4,7 @@
 import tensorflow as tf
 
 class base_model(object):
-    def __init__(self,config):
+    def __init__(self,config,x_,y_):
         self.epochs = config["epochs"]
         self.batch_size = config["batch_size"]
         self.optimizer_ = config["optimizer"]
@@ -12,9 +12,12 @@ class base_model(object):
         self.loss = config["loss"]
         #self.save_model_dir = config["model_dir"]
         #self.tensorboard_dir = config["tensorboard_dir"]
+        self.x = x_
+        self.y = y_
 
         self.inference()
         self.calculate_loss()
+        self.calculate_accuracy()
         self.optimize()
 
     def weights_(self,name,shape,initializer = tf.contrib.layers.xavier_initializer()):
@@ -30,12 +33,10 @@ class base_model(object):
         return tf.nn.max_pool(x_,ksize=[1,kernel,kernel,1],strides=[1,strides,strides,1],padding="SAME")
 
     def inference(self):
-        self.x = tf.placeholder(tf.float32,[None,224,224,3])
-        self.y = tf.placeholder(tf.float32,[None,3])
 
         with tf.device("cpu:0"):
             with tf.name_scope("conv_1"):
-                conv_1_w = self.weights_("conv_1w",[3,3,self.x.shape[-1],128])
+                conv_1_w = self.weights_("conv_1w",[3,3,3,128])
                 conv_1_b = self.biases_("conv_1b",[128])
 
             with tf.name_scope("conv_2"):
@@ -68,6 +69,9 @@ class base_model(object):
 
     def calculate_loss(self):
         self.calculated_loss = tf.reduce_mean(self.loss(logits = self.output,labels = self.y))
+
+    def calculate_accuracy(self):
+        self.calculated_acc = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(self.output,axis = 1),tf.argmax(self.y,axis = 1)),tf.float32))
 
     def optimize(self):
         self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)

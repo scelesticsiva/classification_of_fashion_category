@@ -5,10 +5,10 @@ from data.load_data import data_loader
 from models.basic_model import base_model
 import tensorflow as tf
 TRAIN_FILE_NAME = "/Users/siva/Documents/falconai/training.txt"
+BATCH_SIZE = 5
 
 def train():
-    train_data_loader = data_loader(TRAIN_FILE_NAME).data_loader_main(5)
-
+    train_data,train_labels,data_itr = data_loader(TRAIN_FILE_NAME).data_loader_main(BATCH_SIZE)
     base_model_config = {"epochs":10,\
                          "batch_size":10,\
                          "optimizer":tf.train.AdamOptimizer,\
@@ -16,16 +16,19 @@ def train():
                          "loss":tf.nn.softmax_cross_entropy_with_logits,\
                          }
 
-    #model_obj = base_model(base_model_config)
-    model = base_model(base_model_config)
+    model = base_model(base_model_config,train_data,train_labels)
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
-        img,label = sess.run(train_data_loader)
-        feed_dict_ = dict(zip([model.x,model.y],[img,label]))
-        to_compute = [model.optimizer,model.output,model.calculated_loss]
-        _,out_,loss_ = sess.run(to_compute,feed_dict=feed_dict_)
-        print(out_,loss_)
+        sess.run(data_itr.initializer)
+        for _ in range(10):
+            try:
+                while True:
+                    to_compute = [model.optimizer,model.calculated_acc,model.calculated_loss]
+                    _,acc_,loss_ = sess.run(to_compute)
+                    print(acc_,loss_)
+            except:
+                print("Completed One round of training")
 
 if __name__ == "__main__":
     train()

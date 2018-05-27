@@ -31,6 +31,7 @@ class data_loader(object):
         image_string = tf.read_file(img_name)
         image_decoded = tf.image.decode_image(image_string)
         image_resized = tf.image.resize_image_with_crop_or_pad(image_decoded, 224, 224)
+        image_resized = tf.image.convert_image_dtype(image_resized,dtype = tf.float32)
         return image_resized, label
 
     def data_loader_main(self,BATCH_SIZE):
@@ -46,7 +47,8 @@ class data_loader(object):
         dataset = dataset.map(self._parse_function)
         dataset = dataset.batch(BATCH_SIZE)
 
-        data_iterator = dataset.make_one_shot_iterator()
-        next_data = data_iterator.get_next()
+        #data_iterator = dataset.make_one_shot_iterator()
+        data_iterator = dataset.make_initializable_iterator()
+        next_data,next_labels = data_iterator.get_next()
 
-        return next_data
+        return [next_data,next_labels,data_iterator]
