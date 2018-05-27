@@ -34,7 +34,7 @@ class data_loader(object):
         print("******************************************")
 
 
-    def _parse_function(self,img_name,label):
+    def _parse_function_val(self,img_name,label):
         """
         Reading the img from the file name
         :param img_name: [tensor] containing all the images file names
@@ -43,9 +43,27 @@ class data_loader(object):
         """
         image_string = tf.read_file(img_name)
         image_decoded = tf.image.decode_image(image_string)
-        image_resized = tf.image.resize_image_with_crop_or_pad(image_decoded, 224, 224)
-        image_resized = tf.image.convert_image_dtype(image_resized,dtype = tf.float32)
+        image_float = tf.image.convert_image_dtype(image_decoded, dtype=tf.float32)
+        image_resized = tf.image.resize_image_with_crop_or_pad(image_float, 224, 224)
         return image_resized, label
+
+    def _parse_function_train(self,img_name,label):
+        """
+        Reading the img from the file name
+        :param img_name: [tensor] containing all the images file names
+        :param label: [tensor] containing all the labels
+        :return: [tuple] images preprocessed and labels
+        """
+        image_string = tf.read_file(img_name)
+        image_decoded = tf.image.decode_image(image_string)
+        image_float = tf.image.convert_image_dtype(image_decoded, dtype=tf.float32)
+        image_resized = tf.image.resize_image_with_crop_or_pad(image_float, 224, 224)
+        with tf.name_scope("image_preprocessing_train"):
+            image = tf.image.random_brightness(image_resized, max_delta=32. / 255.)
+            image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
+            image = tf.image.random_hue(image, max_delta=0.2)
+            image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
+        return image, label
 
     def data_loader_train(self,BATCH_SIZE):
         """
@@ -60,11 +78,11 @@ class data_loader(object):
         self.val_categories = tf.constant(self.val_labels)
 
         train_dataset = tf.data.Dataset.from_tensor_slices((self.filenames,self.categories))
-        train_dataset = train_dataset.map(self._parse_function)
+        train_dataset = train_dataset.map(self._parse_function_train)
         train_dataset = train_dataset.batch(BATCH_SIZE)
 
         val_dataset = tf.data.Dataset.from_tensor_slices((self.val_data,self.val_categories))
-        val_dataset = val_dataset.map(self._parse_function)
+        val_dataset = val_dataset.map(self._parse_function_val)
         val_dataset = val_dataset.batch(BATCH_SIZE)
 
 

@@ -3,3 +3,4 @@
 img/
 data/__pycache__/
 models/__pycache__/
+dummy.py

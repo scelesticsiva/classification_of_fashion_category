@@ -46,7 +46,7 @@ if __name__ == "__main__":
     base_model_config = {"epochs": 30, \
                          "batch_size": 52, \
                          "optimizer": tf.train.AdamOptimizer, \
-                         "lr": 0.001, \
+                         "lr": 0.0001, \
                          "lambda_":0.001,\
                          "loss": tf.nn.softmax_cross_entropy_with_logits, \
                          "dropout": 0.8
