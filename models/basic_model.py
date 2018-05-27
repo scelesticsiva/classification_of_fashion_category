@@ -34,14 +34,18 @@ class base_model(object):
         with tf.device("cpu:0"):
             with tf.name_scope("conv_1"):
                 conv_1_w = self.weights_("conv_1w",[3,3,3,24])
-                conv_1_b = self.biases_("conv_1b",[24])
+                conv_1_b = self.biases_("conv_1b",[32])
 
             with tf.name_scope("conv_2"):
                 conv_2_w = self.weights_("conv_2w",[3,3,24,48])
-                conv_2_b = self.biases_("conv_2b",[48])
+                conv_2_b = self.biases_("conv_2b",[64])
+
+            with tf.name_scope("conv_3"):
+                conv_3_w = self.weights_("conv_3w",[3,3,64,128])
+                conv_3_b = self.biases_("conv_3b",[128])
 
             with tf.name_scope("full_1"):
-                full_1_w = self.weights_("full_1w",[56*56*48,128])
+                full_1_w = self.weights_("full_1w",[28*28*128,128])
                 full_1_b = self.biases_("full_1b",[128])
 
             with tf.name_scope("full_2"):
@@ -57,7 +61,9 @@ class base_model(object):
             max_pool_conv_1 = self.max_pool(conv_1)
             conv_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1, conv_2_w), conv_2_b)),self.keep_probability)
             max_pool_conv_2 = self.max_pool(conv_2)
-            reshaped_last_conv = tf.reshape(max_pool_conv_2, (-1, 56 * 56 * 48))
+            conv_3 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_2, conv_3_w), conv_3_b)),self.keep_probability)
+            max_pool_conv_3 = self.max_pool(conv_3)
+            reshaped_last_conv = tf.reshape(max_pool_conv_3, (-1, 28*28*128))
             full_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv, full_1_w), full_1_b)),self.keep_probability)
             full_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b)),self.keep_probability)
             self.output = tf.nn.bias_add(tf.matmul(full_2,full_3_w),full_3_b)

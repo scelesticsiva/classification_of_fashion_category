@@ -7,15 +7,7 @@ import tensorflow as tf
 import numpy as np
 TRAIN_FILE_NAME = "/Users/siva/Documents/falconai/training.txt"
 
-base_model_config = {"epochs":10,\
-                         "batch_size":10,\
-                         "optimizer":tf.train.AdamOptimizer,\
-                         "lr":0.001,\
-                         "loss":tf.nn.softmax_cross_entropy_with_logits,\
-                         "dropout":0.5
-                         }
-
-def train():
+def train(base_model_config):
     data,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"])
     model_obj = base_model(base_model_config,data,labels)
     model = model_obj.inference()
@@ -46,5 +38,13 @@ def train():
                 print("Val Accuracy:", np.mean(TEST_ACCURACY_LIST), "|", "Val Loss:", np.mean(TEST_LOSS_LIST))
 
 if __name__ == "__main__":
-    train()
+    base_model_config = {"epochs": 10, \
+                         "batch_size": 10, \
+                         "optimizer": tf.train.AdamOptimizer, \
+                         "lr": 0.001, \
+                         "loss": tf.nn.softmax_cross_entropy_with_logits, \
+                         "dropout": 0.5
+                         }
+
+    train(base_model_config)
 
