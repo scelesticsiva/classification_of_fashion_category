@@ -6,6 +6,9 @@ import tensorflow as tf
 import numpy as np
 from sklearn.model_selection import train_test_split
 from collections import Counter
+from pre_trained import pre_trained_vgg
+
+VGG_WEIGHTS_FILE = "/Users/siva/Documents/falconai/classification_of_fashion_category/pre_trained/vgg16.npy"
 
 class data_loader(object):
     def __init__(self,filename):
@@ -65,7 +68,7 @@ class data_loader(object):
             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
         return image, label
 
-    def data_loader_train(self,BATCH_SIZE):
+    def data_loader_train(self,BATCH_SIZE,devices,use_pretained_vgg = False,buffer_size = 104):
         """
         Main function that created train data iterator
         :param BATCH_SIZE: [int] Batch size required
@@ -77,21 +80,28 @@ class data_loader(object):
         self.val_filenames = tf.constant(self.val_data)
         self.val_categories = tf.constant(self.val_labels)
 
-        train_dataset = tf.data.Dataset.from_tensor_slices((self.filenames,self.categories))
-        train_dataset = train_dataset.map(self._parse_function_train)
-        train_dataset = train_dataset.batch(BATCH_SIZE)
-        train_dataset = train_dataset.prefetch(buffer_size=104)
+        with tf.device(devices[0]):
+            train_dataset = tf.data.Dataset.from_tensor_slices((self.filenames,self.categories))
+            train_dataset = train_dataset.map(self._parse_function_train)
+            train_dataset = train_dataset.batch(BATCH_SIZE)
+            train_dataset = train_dataset.prefetch(buffer_size=buffer_size)
 
-        val_dataset = tf.data.Dataset.from_tensor_slices((self.val_data,self.val_categories))
-        val_dataset = val_dataset.map(self._parse_function_val)
-        val_dataset = val_dataset.batch(BATCH_SIZE)
-        val_dataset = val_dataset.prefetch(buffer_size=104)
+            val_dataset = tf.data.Dataset.from_tensor_slices((self.val_data,self.val_categories))
+            val_dataset = val_dataset.map(self._parse_function_val)
+            val_dataset = val_dataset.batch(BATCH_SIZE)
+            val_dataset = val_dataset.prefetch(buffer_size=buffer_size)
 
-        iterator = tf.data.Iterator.from_structure(train_dataset.output_types,train_dataset.output_shapes)
+            iterator = tf.data.Iterator.from_structure(train_dataset.output_types,train_dataset.output_shapes)
 
-        next_data,next_labels = iterator.get_next()
+            next_data,next_labels = iterator.get_next()
+
+        if use_pretained_vgg:
+            with tf.device(devices[1]):
+                vgg_features = pre_trained_vgg.Vgg16(VGG_WEIGHTS_FILE).build(next_data)
+        else:
+            vgg_features = None
 
         train_op = iterator.make_initializer(train_dataset)
         val_op = iterator.make_initializer(val_dataset)
 
-        return [next_data,next_labels,train_op,val_op]
+        return [next_data,vgg_features,next_labels,train_op,val_op]

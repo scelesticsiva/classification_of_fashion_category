@@ -12,6 +12,7 @@ class regularized_model(object):
         self.lambda_ = config["lambda_"]
         self.loss = config["loss"]
         self.keep_probability = config["dropout"]
+        self.devices = config["devices"]
         self.x = x_
         self.y = y_
         self.train_bool = True
@@ -44,7 +45,7 @@ class regularized_model(object):
 
     def inference(self):
 
-        with tf.device("/cpu:0"):
+        with tf.device(self.devices[0]):
             with tf.name_scope("conv_1"):
                 conv_1_w = self.weights_("conv_1w",[3,3,3,64])
                 conv_1_b = self.biases_("conv_1b",[64])
@@ -69,19 +70,13 @@ class regularized_model(object):
                 full_3_w = self.weights_("full_3w",[64,3])
                 full_3_b = self.biases_("full_3b",[3])
 
-        with tf.device("/cpu:0"):
+        with tf.device(self.devices[1]):
             with tf.name_scope("conv_1") as conv_1_scope:
                 conv_1 = self.conv_max_pool_layer(self.x,conv_1_w,conv_1_b,self.keep_probability,conv_1_scope)
             with tf.name_scope("conv_2") as conv_2_scope:
                 conv_2 = self.conv_max_pool_layer(conv_1,conv_2_w,conv_2_b,self.keep_probability,conv_2_scope)
             with tf.name_scope("conv_3") as conv_3_scope:
                 conv_3 = self.conv_max_pool_layer(conv_2,conv_3_w,conv_3_b,self.keep_probability,conv_3_scope)
-            # conv_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(self.x, conv_1_w), conv_1_b)),self.keep_probability)
-            # max_pool_conv_1 = self.max_pool(conv_1)
-            # conv_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1, conv_2_w), conv_2_b)),self.keep_probability)
-            # max_pool_conv_2 = self.max_pool(conv_2)
-            # conv_3 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_2, conv_3_w), conv_3_b)),self.keep_probability)
-            # max_pool_conv_3 = self.max_pool(conv_3)
             reshaped_last_conv = tf.reshape(conv_3, (-1,28*28*128))
             full_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv, full_1_w), full_1_b)),self.keep_probability)
             full_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b)),self.keep_probability)

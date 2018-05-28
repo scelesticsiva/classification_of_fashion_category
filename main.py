@@ -6,11 +6,14 @@ from models.basic_model import base_model
 from models.regularized_model import regularized_model
 import tensorflow as tf
 import numpy as np
-TRAIN_FILE_NAME = "/Users/siva/Documents/falconai/training.txt"
+
+ROOT_PATH = "/Users/siva/Documents/falconai/"
+TRAIN_FILE_NAME = ROOT_PATH+"training.txt"
 
 def train(base_model_config):
-    with tf.device("/cpu:0"):
-        data,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"])
+    data,vgg_features,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"],\
+                                                                                              base_model_config["devices"],\
+                                                                                              base_model_config["use_vgg_features"])
 
     #--------------- Different models ----------------#
     #model_obj = base_model(base_model_config,data,labels)
@@ -18,6 +21,9 @@ def train(base_model_config):
     # ------------------------------------------------#
     model = model_obj.inference()
     init = tf.global_variables_initializer()
+
+    if base_model_config["checkpoint"]:
+        saver = tf.train.Saver()
 
     with tf.Session() as sess:
         sess.run(init)
@@ -45,6 +51,10 @@ def train(base_model_config):
             except:
                 print("Val Accuracy:", np.mean(TEST_ACCURACY_LIST), "|", "Val Loss:", np.mean(TEST_LOSS_LIST))
 
+            if base_model_config["checkpoint"]:
+                print("Saving model...")
+                saver.save(sess,base_model_config["model_dir"]+"checkpoint.ckpt")
+
 if __name__ == "__main__":
     base_model_config = {"epochs": 30, \
                          "batch_size": 52, \
@@ -52,7 +62,11 @@ if __name__ == "__main__":
                          "lr": 0.0001, \
                          "lambda_":0.001,\
                          "loss": tf.nn.softmax_cross_entropy_with_logits, \
-                         "dropout": 0.8
+                         "dropout": 0.8,\
+                         "use_vgg_features":True,\
+                         "checkpoint":True,\
+                         "model_dir":ROOT_PATH+"models",\
+                         "devices":["/cpu:0","/cpu:0"]
                          }
 
     train(base_model_config)

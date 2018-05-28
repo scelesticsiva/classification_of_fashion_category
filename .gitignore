@@ -4,3 +4,5 @@ img/
 data/__pycache__/
 models/__pycache__/
 dummy.py
+pre_trained/vgg16.npy
+pre_trained/__pycache__/
