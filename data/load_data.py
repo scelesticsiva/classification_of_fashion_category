@@ -97,7 +97,7 @@ class data_loader(object):
 
         if use_pretained_vgg:
             with tf.device(devices[1]):
-                vgg_features = pre_trained_vgg.Vgg16(VGG_WEIGHTS_FILE).build(next_data)
+                vgg_features = pre_trained_vgg.Vgg16(devices,VGG_WEIGHTS_FILE).build(next_data)
         else:
             vgg_features = None
 

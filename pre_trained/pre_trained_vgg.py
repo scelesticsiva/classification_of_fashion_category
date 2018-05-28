@@ -7,7 +7,8 @@ import numpy as np
 VGG_MEAN = [103.939, 116.779, 123.68]
 
 class Vgg16:
-    def __init__(self, vgg16_npy_path=None):
+    def __init__(self, devices,vgg16_npy_path=None):
+        self.devices = devices
         self.data_dict = np.load(vgg16_npy_path, encoding='latin1').item()
 
     def build(self, rgb):
@@ -63,14 +64,15 @@ class Vgg16:
 
     def conv_layer(self, bottom, name):
         with tf.variable_scope(name):
-            filt = self.get_conv_filter(name)
+            with tf.device(self.devices[0]):
+                filt = self.get_conv_filter(name)
+                conv_biases = self.get_bias(name)
 
-            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
+            with tf.device(self.devices[1]):
+                conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
+                bias = tf.nn.bias_add(conv, conv_biases)
+                relu = tf.nn.relu(bias)
 
-            conv_biases = self.get_bias(name)
-            bias = tf.nn.bias_add(conv, conv_biases)
-
-            relu = tf.nn.relu(bias)
             return relu
 
     def fc_layer(self, bottom, name):
@@ -81,12 +83,14 @@ class Vgg16:
                 dim *= d
             x = tf.reshape(bottom, [-1, dim])
 
-            weights = self.get_fc_weight(name)
-            biases = self.get_bias(name)
+            with tf.device(self.devices[0]):
+                weights = self.get_fc_weight(name)
+                biases = self.get_bias(name)
 
             # Fully connected layer. Note that the '+' operation automatically
             # broadcasts the biases.
-            fc = tf.nn.bias_add(tf.matmul(x, weights), biases)
+            with tf.device(self.devices[1]):
+                fc = tf.nn.bias_add(tf.matmul(x, weights), biases)
 
             return fc
 
