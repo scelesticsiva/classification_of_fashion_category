@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 from pre_trained import pre_trained_vgg
 
-VGG_WEIGHTS_FILE = "/Users/siva/Documents/falconai/classification_of_fashion_category/pre_trained/vgg16.npy"
+#VGG_WEIGHTS_FILE = "/Users/siva/Documents/falconai/classification_of_fashion_category/pre_trained/vgg16.npy"
 
 class data_loader(object):
     def __init__(self,filename):
@@ -68,7 +68,7 @@ class data_loader(object):
             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
         return image, label
 
-    def data_loader_train(self,BATCH_SIZE,devices,use_pretained_vgg = False,buffer_size = 104):
+    def data_loader_train(self,BATCH_SIZE,devices,VGG_WEIGHTS_FILE,use_pretained_vgg = False,buffer_size = 104):
         """
         Main function that created train data iterator
         :param BATCH_SIZE: [int] Batch size required

@@ -10,9 +10,11 @@ import numpy as np
 
 ROOT_PATH = "/Users/siva/Documents/falconai/"
 TRAIN_FILE_NAME = ROOT_PATH+"training.txt"
+VGG_WEIGHTS_FILE = ROOT_PATH+"classification_of_fashion_category/pre_trained/vgg16.npy"
 
 def train(base_model_config):
     data,vgg_features,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"],\
+                                                                                              VGG_WEIGHTS_FILE,\
                                                                                               base_model_config["devices"],\
                                                                                               base_model_config["use_vgg_features"])
 
