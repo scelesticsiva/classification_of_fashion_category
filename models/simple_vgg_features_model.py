@@ -50,16 +50,20 @@ class simple_vgg_features_model(object):
 
         with tf.device(self.devices[0]):
             with tf.name_scope("full_1"):
-                full_1_w = self.weights_("full_1w",[4096,128])
-                full_1_b = self.biases_("full_1b",[128])
+                full_1_w = self.weights_("full_1w",[4096,1024])
+                full_1_b = self.biases_("full_1b",[1024])
 
             with tf.name_scope("full_2"):
-                full_2_w = self.weights_("full_2w",[128,64])
-                full_2_b = self.biases_("full_2b",[64])
+                full_2_w = self.weights_("full_2w",[1024,512])
+                full_2_b = self.biases_("full_2b",[512])
 
             with tf.name_scope("full_3"):
-                full_3_w = self.weights_("full_3w",[64,3])
-                full_3_b = self.biases_("full_3b",[3])
+                full_3_w = self.weights_("full_3w",[512,128])
+                full_3_b = self.biases_("full_3b",[128])
+
+            with tf.name_scope("full_4"):
+                full_4_w = self.weights_("full_4w",[128,3])
+                full_4_b = self.biases_("full_4b",[3])
 
         with tf.device(self.devices[1]):
             with tf.name_scope("full_1") as full_1_scope:
@@ -67,7 +71,9 @@ class simple_vgg_features_model(object):
             with tf.name_scope("full_2") as full_2_scope:
                 full_2 = self.full_connected_layer(full_1,full_2_w,full_2_b,self.keep_probability,full_2_scope)
             with tf.name_scope("full_3") as full_3_scope:
-                self.output = tf.nn.bias_add(tf.matmul(full_2,full_3_w),full_3_b)
+                full_3 = self.full_connected_layer(full_2,full_3_w,full_3_b,self.keep_probability,full_3_scope)
+            with tf.name_scope("full_4") as full_4_scope:
+                self.output = tf.nn.bias_add(tf.matmul(full_3,full_4_w),full_4_b)
 
         trainable_vars = tf.trainable_variables()
         self.regularized_loss = tf.add_n([tf.nn.l2_loss(i) for i in trainable_vars if "b" not in i.name],name = "regularized_loss")*self.lambda_
