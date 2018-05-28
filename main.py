@@ -21,9 +21,9 @@ def train(base_model_config):
 
     #--------------- Different models ----------------#
     #model_obj = base_model(base_model_config,data,labels)
-    #model_obj = regularized_model(base_model_config,data,labels)
+    model_obj = regularized_model(base_model_config,data,labels)
     #model_obj = vgg_features_model(base_model_config,data,vgg_features,labels)
-    model_obj = simple_vgg_features_model(base_model_config,data,vgg_features,labels)
+    #model_obj = simple_vgg_features_model(base_model_config,data,vgg_features,labels)
     # ------------------------------------------------#
     model = model_obj.inference()
     init = tf.global_variables_initializer()
