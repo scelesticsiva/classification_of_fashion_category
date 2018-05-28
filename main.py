@@ -5,6 +5,7 @@ from data.load_data import data_loader
 from models.basic_model import base_model
 from models.regularized_model import regularized_model
 from models.model_with_vgg_features import vgg_features_model
+from models.simple_vgg_features_model import simple_vgg_features_model
 import tensorflow as tf
 import numpy as np
 
@@ -21,7 +22,8 @@ def train(base_model_config):
     #--------------- Different models ----------------#
     #model_obj = base_model(base_model_config,data,labels)
     #model_obj = regularized_model(base_model_config,data,labels)
-    model_obj = vgg_features_model(base_model_config,data,vgg_features,labels)
+    #model_obj = vgg_features_model(base_model_config,data,vgg_features,labels)
+    model_obj = simple_vgg_features_model(base_model_config,data,vgg_features,labels)
     # ------------------------------------------------#
     model = model_obj.inference()
     init = tf.global_variables_initializer()
