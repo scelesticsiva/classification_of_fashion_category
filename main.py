@@ -25,6 +25,7 @@ def train(base_model_config):
             print("*********** EPOCH %s ***********"%str(e))
             sess.run(train_op)
             model_obj.set_keep_probability(base_model_config["dropout"])
+            model_obj.reset_train_bool(True)
             ACCURACY_LIST,LOSS_LIST,TEST_LOSS_LIST,TEST_ACCURACY_LIST = [],[],[],[]
             try:
                 while True:
@@ -35,6 +36,7 @@ def train(base_model_config):
                 print("Train Accuracy:",np.mean(ACCURACY_LIST),"|","Train Loss:",np.mean(LOSS_LIST))
             sess.run(val_op)
             model_obj.set_keep_probability(1.0)
+            model_obj.reset_train_bool(False)
             try:
                 while(True):
                     test_acc,test_loss = sess.run([model["acc"],model["loss"]])
