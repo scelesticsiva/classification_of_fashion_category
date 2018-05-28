@@ -4,6 +4,7 @@
 from data.load_data import data_loader
 from models.basic_model import base_model
 from models.regularized_model import regularized_model
+from models.model_with_vgg_features import vgg_features_model
 import tensorflow as tf
 import numpy as np
 
@@ -17,7 +18,8 @@ def train(base_model_config):
 
     #--------------- Different models ----------------#
     #model_obj = base_model(base_model_config,data,labels)
-    model_obj = regularized_model(base_model_config,data,labels)
+    #model_obj = regularized_model(base_model_config,data,labels)
+    model_obj = vgg_features_model(base_model_config,data,vgg_features,labels)
     # ------------------------------------------------#
     model = model_obj.inference()
     init = tf.global_variables_initializer()
@@ -53,7 +55,7 @@ def train(base_model_config):
 
             if base_model_config["checkpoint"]:
                 print("Saving model...")
-                saver.save(sess,base_model_config["model_dir"]+"checkpoint.ckpt")
+                saver.save(sess,base_model_config["model_dir"]+"/checkpoint.ckpt")
 
 if __name__ == "__main__":
     base_model_config = {"epochs": 30, \
@@ -65,7 +67,7 @@ if __name__ == "__main__":
                          "dropout": 0.8,\
                          "use_vgg_features":True,\
                          "checkpoint":True,\
-                         "model_dir":ROOT_PATH+"models",\
+                         "model_dir":ROOT_PATH+"checkpoints",\
                          "devices":["/cpu:0","/cpu:0"]
                          }
 
