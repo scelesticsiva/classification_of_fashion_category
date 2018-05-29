@@ -31,27 +31,36 @@ def train(base_model_config):
     if base_model_config["checkpoint"]:
         saver = tf.train.Saver()
 
+
     with tf.Session() as sess:
+        train_saver = tf.summary.FileWriter(base_model_config["summary_dir"] + "/train",sess.graph)
+        test_saver = tf.summary.FileWriter(base_model_config["summary_dir"] + "/test",sess.graph)
+
         sess.run(init)
+        global_step = 0
         for e in range(base_model_config["epochs"]):
             print("*********** EPOCH %s ***********"%str(e))
             sess.run(train_op)
             ACCURACY_LIST,LOSS_LIST,TEST_LOSS_LIST,TEST_ACCURACY_LIST = [],[],[],[]
             try:
                 while True:
+                    global_step += 1
                     feed_dict_ = {model_obj.keep_probability:base_model_config["dropout"],model_obj.train_bool:1}
-                    _,acc_,loss_ = sess.run([model["optimizer"],model["acc"],model["loss"]],feed_dict=feed_dict_)
+                    _,acc_,loss_,summ_ = sess.run([model["optimizer"],model["acc"],model["loss"],model["summary"]],feed_dict=feed_dict_)
                     ACCURACY_LIST.append(acc_)
                     LOSS_LIST.append(loss_)
+                    train_saver.add_summary(summ_,global_step=global_step)
             except:
                 print("Train Accuracy:",np.mean(ACCURACY_LIST),"|","Train Loss:",np.mean(LOSS_LIST))
             sess.run(val_op)
             try:
                 while(True):
+                    global_step += 1
                     feed_dict_ = {model_obj.keep_probability:1.0, model_obj.train_bool: 0}
-                    test_acc,test_loss = sess.run([model["acc"],model["loss"]],feed_dict=feed_dict_)
+                    test_acc,test_loss,test_summ_ = sess.run([model["acc"],model["loss"],model["summary"]],feed_dict=feed_dict_)
                     TEST_ACCURACY_LIST.append(test_acc)
                     TEST_LOSS_LIST.append(test_loss)
+                    test_saver.add_summary(test_summ_,global_step=global_step)
             except:
                 print("Val Accuracy:", np.mean(TEST_ACCURACY_LIST), "|", "Val Loss:", np.mean(TEST_LOSS_LIST))
 
@@ -66,11 +75,12 @@ if __name__ == "__main__":
                          "lr": 0.0001, \
                          "lambda_":0.001,\
                          "loss": tf.nn.softmax_cross_entropy_with_logits, \
-                         "dropout": 0.8,\
+                         "dropout": 0.6,\
                          "use_vgg_features":True,\
                          "checkpoint":True,\
-                         "model_dir":ROOT_PATH+"checkpoints",\
-                         "devices":["/cpu:0","/cpu:0"]
+                         "model_dir":ROOT_PATH+"checkpoints_64_128_128",\
+                         "devices":["/cpu:0","/cpu:0"],\
+                         "summary_dir":ROOT_PATH+"tensorboard_64_128_128"
                          }
 
     train(base_model_config)
