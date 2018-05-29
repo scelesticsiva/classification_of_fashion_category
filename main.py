@@ -6,10 +6,12 @@ from models.basic_model import base_model
 from models.regularized_model import regularized_model
 from models.model_with_vgg_features import vgg_features_model
 from models.simple_vgg_features_model import simple_vgg_features_model
+from models.batch_norm_model import  batch_norm_model
 import tensorflow as tf
 import numpy as np
 
-ROOT_PATH = "/Users/siva/Documents/falconai/"
+#ROOT_PATH = "/Users/siva/Documents/falconai/"
+ROOT_PATH = "/home/scelesticsiva/Documents/falconai/"
 TRAIN_FILE_NAME = ROOT_PATH+"training.txt"
 VGG_WEIGHTS_FILE = ROOT_PATH+"classification_of_fashion_category/pre_trained/vgg16.npy"
 
@@ -21,9 +23,10 @@ def train(base_model_config):
 
     #--------------- Different models ----------------#
     #model_obj = base_model(base_model_config,data,labels)
-    model_obj = regularized_model(base_model_config,data,labels)
+    #model_obj = regularized_model(base_model_config,data,labels)
     #model_obj = vgg_features_model(base_model_config,data,vgg_features,labels)
     #model_obj = simple_vgg_features_model(base_model_config,data,vgg_features,labels)
+    model_obj = batch_norm_model(base_model_config, data, labels)
     # ------------------------------------------------#
     model = model_obj.inference()
     init = tf.global_variables_initializer()
@@ -79,7 +82,7 @@ if __name__ == "__main__":
                          "use_vgg_features":True,\
                          "checkpoint":True,\
                          "model_dir":ROOT_PATH+"checkpoints_try",\
-                         "devices":["/cpu:0","/cpu:0"],\
+                         "devices":["/cpu:0","/gpu:0"],\
                          "summary_dir":ROOT_PATH+"tensorboard_try"
                          }
 

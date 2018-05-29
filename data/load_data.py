@@ -40,7 +40,7 @@ class data_loader(object):
         mean = tf.reduce_mean(image)
         image_mean_centered = tf.subtract(image, mean)
         var = tf.maximum(tf.constant([1e-7]),
-                         tf.sqrt(tf.add(tf.constant([10.]), tf.reduce_mean(tf.square(image_mean_centered)))))
+                         tf.sqrt(tf.reduce_mean(tf.square(image_mean_centered))))
         return tf.divide(image_mean_centered, var)
 
     def _parse_function_val(self,img_name,label):
