@@ -37,30 +37,30 @@ def train(base_model_config):
         test_saver = tf.summary.FileWriter(base_model_config["summary_dir"] + "/test",sess.graph)
 
         sess.run(init)
-        global_step = 0
+        global_step_train,global_step_test = 0,0
         for e in range(base_model_config["epochs"]):
             print("*********** EPOCH %s ***********"%str(e))
             sess.run(train_op)
             ACCURACY_LIST,LOSS_LIST,TEST_LOSS_LIST,TEST_ACCURACY_LIST = [],[],[],[]
             try:
                 while True:
-                    global_step += 1
+                    global_step_train += 1
                     feed_dict_ = {model_obj.keep_probability:base_model_config["dropout"],model_obj.train_bool:1}
                     _,acc_,loss_,summ_ = sess.run([model["optimizer"],model["acc"],model["loss"],model["summary"]],feed_dict=feed_dict_)
                     ACCURACY_LIST.append(acc_)
                     LOSS_LIST.append(loss_)
-                    train_saver.add_summary(summ_,global_step=global_step)
+                    train_saver.add_summary(summ_,global_step=global_step_train)
             except:
                 print("Train Accuracy:",np.mean(ACCURACY_LIST),"|","Train Loss:",np.mean(LOSS_LIST))
             sess.run(val_op)
             try:
                 while(True):
-                    global_step += 1
+                    global_step_test += 1
                     feed_dict_ = {model_obj.keep_probability:1.0, model_obj.train_bool: 0}
                     test_acc,test_loss,test_summ_ = sess.run([model["acc"],model["loss"],model["summary"]],feed_dict=feed_dict_)
                     TEST_ACCURACY_LIST.append(test_acc)
                     TEST_LOSS_LIST.append(test_loss)
-                    test_saver.add_summary(test_summ_,global_step=global_step)
+                    test_saver.add_summary(test_summ_,global_step=global_step_test)
             except:
                 print("Val Accuracy:", np.mean(TEST_ACCURACY_LIST), "|", "Val Loss:", np.mean(TEST_LOSS_LIST))
 
