@@ -10,8 +10,8 @@ from models.batch_norm_model import  batch_norm_model
 import tensorflow as tf
 import numpy as np
 
-#ROOT_PATH = "/Users/siva/Documents/falconai/"
-ROOT_PATH = "/home/scelesticsiva/Documents/falconai/"
+ROOT_PATH = "/Users/siva/Documents/falconai/"
+#ROOT_PATH = "/home/scelesticsiva/Documents/falconai/"
 TRAIN_FILE_NAME = ROOT_PATH+"training.txt"
 VGG_WEIGHTS_FILE = ROOT_PATH+"classification_of_fashion_category/pre_trained/vgg16.npy"
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
                          "use_vgg_features":True,\
                          "checkpoint":True,\
                          "model_dir":ROOT_PATH+"checkpoints_try",\
-                         "devices":["/cpu:0","/gpu:0"],\
+                         "devices":["/cpu:0","/cpu:0"],\
                          "summary_dir":ROOT_PATH+"tensorboard_try"
                          }
 

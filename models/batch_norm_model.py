@@ -30,13 +30,16 @@ class batch_norm_model(object):
         return tf.nn.max_pool(x_,ksize=[1,kernel,kernel,1],strides=[1,strides,strides,1],padding="SAME")
 
     def batch_norm(self,x,scope):
-        return tf.contrib.layers.batch_norm(x,is_training = self.train_bool,center = True,scale = True,scope = scope)
+        with tf.device(self.devices[0]):
+            b_n = tf.contrib.layers.batch_norm(x,is_training = self.train_bool,center = True,scale = True,scope = scope)
+        return b_n
         #return tf.layers.batch_normalization(x, training=self.train_bool)
 
     def conv_max_pool_layer(self,inp_,w,dp,name_scope):
-        conv = tf.nn.dropout(tf.nn.relu(self.batch_norm(self.conv_2d(inp_, w),name_scope)),dp)
-        #conv = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(inp_, w), b)), dp)
-        max_pool = self.max_pool(conv)
+        with tf.device(self.devices[1]):
+            conv = tf.nn.dropout(tf.nn.relu(self.batch_norm(self.conv_2d(inp_, w),name_scope)),dp)
+            #conv = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(inp_, w), b)), dp)
+            max_pool = self.max_pool(conv)
         return max_pool
 
     def inference(self):
@@ -66,13 +69,14 @@ class batch_norm_model(object):
                 full_3_w = self.weights_("full_3w",[64,3])
                 full_3_b = self.biases_("full_3b",[3])
 
+        #with tf.device(self.devices[1]):
+        with tf.name_scope("conv_1") as conv_1_scope:
+            conv_1 = self.conv_max_pool_layer(self.x,conv_1_w,self.keep_probability,conv_1_scope)
+        with tf.name_scope("conv_2") as conv_2_scope:
+            conv_2 = self.conv_max_pool_layer(conv_1,conv_2_w,self.keep_probability,conv_2_scope)
+        with tf.name_scope("conv_3") as conv_3_scope:
+            conv_3 = self.conv_max_pool_layer(conv_2,conv_3_w,self.keep_probability,conv_3_scope)
         with tf.device(self.devices[1]):
-            with tf.name_scope("conv_1") as conv_1_scope:
-                conv_1 = self.conv_max_pool_layer(self.x,conv_1_w,self.keep_probability,conv_1_scope)
-            with tf.name_scope("conv_2") as conv_2_scope:
-                conv_2 = self.conv_max_pool_layer(conv_1,conv_2_w,self.keep_probability,conv_2_scope)
-            with tf.name_scope("conv_3") as conv_3_scope:
-                conv_3 = self.conv_max_pool_layer(conv_2,conv_3_w,self.keep_probability,conv_3_scope)
             reshaped_last_conv = tf.reshape(conv_3, (-1,28*28*128))
             full_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv, full_1_w), full_1_b)),self.keep_probability)
             full_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b)),self.keep_probability)
