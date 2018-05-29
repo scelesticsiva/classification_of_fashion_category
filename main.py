@@ -36,22 +36,20 @@ def train(base_model_config):
         for e in range(base_model_config["epochs"]):
             print("*********** EPOCH %s ***********"%str(e))
             sess.run(train_op)
-            model_obj.set_keep_probability(base_model_config["dropout"])
-            model_obj.reset_train_bool(True)
             ACCURACY_LIST,LOSS_LIST,TEST_LOSS_LIST,TEST_ACCURACY_LIST = [],[],[],[]
             try:
                 while True:
-                    _,acc_,loss_ = sess.run([model["optimizer"],model["acc"],model["loss"]])
+                    feed_dict_ = {model_obj.keep_probability:base_model_config["dropout"],model_obj.train_bool:1}
+                    _,acc_,loss_ = sess.run([model["optimizer"],model["acc"],model["loss"]],feed_dict=feed_dict_)
                     ACCURACY_LIST.append(acc_)
                     LOSS_LIST.append(loss_)
             except:
                 print("Train Accuracy:",np.mean(ACCURACY_LIST),"|","Train Loss:",np.mean(LOSS_LIST))
             sess.run(val_op)
-            model_obj.set_keep_probability(1.0)
-            model_obj.reset_train_bool(False)
             try:
                 while(True):
-                    test_acc,test_loss = sess.run([model["acc"],model["loss"]])
+                    feed_dict_ = {model_obj.keep_probability:1.0, model_obj.train_bool: 0}
+                    test_acc,test_loss = sess.run([model["acc"],model["loss"]],feed_dict=feed_dict_)
                     TEST_ACCURACY_LIST.append(test_acc)
                     TEST_LOSS_LIST.append(test_loss)
             except:

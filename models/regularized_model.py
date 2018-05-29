@@ -11,11 +11,11 @@ class regularized_model(object):
         self.lr = config["lr"]
         self.lambda_ = config["lambda_"]
         self.loss = config["loss"]
-        self.keep_probability = config["dropout"]
         self.devices = config["devices"]
         self.x = x_
         self.y = y_
-        self.train_bool = True
+        self.train_bool = tf.placeholder(tf.bool)
+        self.keep_probability = tf.placeholder(tf.float32)
 
     def weights_(self,name,shape,initializer = tf.contrib.layers.xavier_initializer()):
         return tf.get_variable(name = name,shape = shape,initializer = initializer)
@@ -29,14 +29,9 @@ class regularized_model(object):
     def max_pool(self,x_,kernel = 3,strides = 2):
         return tf.nn.max_pool(x_,ksize=[1,kernel,kernel,1],strides=[1,strides,strides,1],padding="SAME")
 
-    def set_keep_probability(self,value):
-        self.keep_probability = value
-
-    def reset_train_bool(self,inp):
-        self.train_bool = inp
-
     def batch_norm(self,x,scope):
-        return tf.contrib.layers.batch_norm(x,trainable = self.train_bool,center = True,scale = True,scope = scope)
+        #return tf.contrib.layers.batch_norm(x,trainable = self.train_bool,center = True,scale = True,scope = scope)
+        return tf.layers.batch_normalization(x, training=self.train_bool)
 
     def conv_max_pool_layer(self,inp_,w,b,dp,name_scope):
         conv = tf.nn.dropout(self.batch_norm(tf.nn.relu(tf.nn.bias_add(self.conv_2d(inp_, w),b)),name_scope),dp)
