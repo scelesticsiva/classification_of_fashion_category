@@ -78,9 +78,9 @@ if __name__ == "__main__":
                          "dropout": 0.6,\
                          "use_vgg_features":True,\
                          "checkpoint":True,\
-                         "model_dir":ROOT_PATH+"checkpoints_64_128_128",\
+                         "model_dir":ROOT_PATH+"checkpoints_try",\
                          "devices":["/cpu:0","/cpu:0"],\
-                         "summary_dir":ROOT_PATH+"tensorboard_64_128_128"
+                         "summary_dir":ROOT_PATH+"tensorboard_try"
                          }
 
     train(base_model_config)

@@ -36,6 +36,12 @@ class data_loader(object):
         print("Validation:",sorted([(label_dict_rev[each], counter_val[each]) for each in counter_val]))
         print("******************************************")
 
+    def global_contrast_normalization(self,image):
+        mean = tf.reduce_mean(image)
+        image_mean_centered = tf.subtract(image, mean)
+        var = tf.maximum(tf.constant([1e-7]),
+                         tf.sqrt(tf.add(tf.constant([10.]), tf.reduce_mean(tf.square(image_mean_centered)))))
+        return tf.divide(image_mean_centered, var)
 
     def _parse_function_val(self,img_name,label):
         """
@@ -47,8 +53,8 @@ class data_loader(object):
         image_string = tf.read_file(img_name)
         image_decoded = tf.image.decode_image(image_string)
         image_float = tf.image.convert_image_dtype(image_decoded, dtype=tf.float32)
-        image_resized = tf.image.resize_image_with_crop_or_pad(image_float, 224, 224)
-        #image_resized = tf.random_crop(image_float,size = [224,224,3])
+        image_normalized = self.global_contrast_normalization(image_float)
+        image_resized = tf.image.resize_image_with_crop_or_pad(image_normalized, 224, 224)
         return image_resized, label
 
     def _parse_function_train(self,img_name,label):
@@ -61,7 +67,8 @@ class data_loader(object):
         image_string = tf.read_file(img_name)
         image_decoded = tf.image.decode_image(image_string)
         image_float = tf.image.convert_image_dtype(image_decoded, dtype=tf.float32)
-        image_resized = tf.image.resize_image_with_crop_or_pad(image_float, 224, 224)
+        image_normalized = self.global_contrast_normalization(image_float)
+        image_resized = tf.image.resize_image_with_crop_or_pad(image_normalized, 224, 224)
         with tf.name_scope("image_preprocessing_train"):
             image = tf.image.random_brightness(image_resized, max_delta=32. / 255.)
             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
