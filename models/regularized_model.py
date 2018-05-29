@@ -30,11 +30,12 @@ class regularized_model(object):
         return tf.nn.max_pool(x_,ksize=[1,kernel,kernel,1],strides=[1,strides,strides,1],padding="SAME")
 
     def batch_norm(self,x,scope):
-        #return tf.contrib.layers.batch_norm(x,trainable = self.train_bool,center = True,scale = True,scope = scope)
-        return tf.layers.batch_normalization(x, training=self.train_bool)
+        return tf.contrib.layers.batch_norm(x,is_training = self.train_bool,center = True,scale = True,scope = scope)
+        #return tf.layers.batch_normalization(x, training=self.train_bool)
 
     def conv_max_pool_layer(self,inp_,w,b,dp,name_scope):
-        conv = tf.nn.dropout(self.batch_norm(tf.nn.relu(tf.nn.bias_add(self.conv_2d(inp_, w),b)),name_scope),dp)
+        #conv = tf.nn.dropout(self.batch_norm(tf.nn.relu(tf.nn.bias_add(self.conv_2d(inp_, w),b)),name_scope),dp)
+        conv = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(inp_, w), b)), dp)
         max_pool = self.max_pool(conv)
         return max_pool
 
