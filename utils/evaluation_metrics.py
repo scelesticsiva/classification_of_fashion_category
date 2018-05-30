@@ -19,9 +19,9 @@ class metrics(object):
         self.acc = np.mean(np.equal(self.labels,self.predictions))
 
     def calculate_other_metrics(self):
-        self.f1score = f1_score(self.labels,self.predictions)
-        self.recall = recall_score(self.labels,self.predictions)
-        self.precision = precision_score(self.labels,self.predictions)
+        self.f1score = f1_score(self.labels,self.predictions,average="macro")
+        self.recall = recall_score(self.labels,self.predictions,average="macro")
+        self.precision = precision_score(self.labels,self.predictions,average="macro")
 
     def calculate_confusion_mat(self):
         self.confusion_mat = confusion_matrix(self.labels,self.predictions)
