@@ -10,13 +10,13 @@ from models.batch_norm_model import  batch_norm_model
 import tensorflow as tf
 import numpy as np
 
-ROOT_PATH = "/Users/siva/Documents/falconai/"
-#ROOT_PATH = "/home/scelesticsiva/Documents/falconai/"
+#ROOT_PATH = "/Users/siva/Documents/falconai/"
+ROOT_PATH = "/home/scelesticsiva/Documents/falconai/"
 TRAIN_FILE_NAME = ROOT_PATH+"training.txt"
 VGG_WEIGHTS_FILE = ROOT_PATH+"classification_of_fashion_category/pre_trained/vgg16.npy"
 
 def train(base_model_config):
-    data,vgg_features,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"],\
+    _,data,vgg_features,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"],\
                                                                                               base_model_config["devices"], \
                                                                                               VGG_WEIGHTS_FILE, \
                                                                                               base_model_config["use_vgg_features"])
@@ -24,9 +24,9 @@ def train(base_model_config):
     #--------------- Different models ----------------#
     #model_obj = base_model(base_model_config,data,labels)
     #model_obj = regularized_model(base_model_config,data,labels)
-    #model_obj = vgg_features_model(base_model_config,data,vgg_features,labels)
+    model_obj = vgg_features_model(base_model_config,data,vgg_features,labels)
     #model_obj = simple_vgg_features_model(base_model_config,data,vgg_features,labels)
-    model_obj = batch_norm_model(base_model_config, data, labels)
+    #model_obj = batch_norm_model(base_model_config, data, labels)
     # ------------------------------------------------#
     model = model_obj.inference()
     init = tf.global_variables_initializer()
@@ -72,7 +72,7 @@ def train(base_model_config):
                 saver.save(sess,base_model_config["model_dir"]+"/checkpoint.ckpt")
 
 if __name__ == "__main__":
-    base_model_config = {"epochs": 30, \
+    base_model_config = {"epochs": 100, \
                          "batch_size": 52, \
                          "optimizer": tf.train.AdamOptimizer, \
                          "lr": 0.0001, \
@@ -81,9 +81,9 @@ if __name__ == "__main__":
                          "dropout": 0.6,\
                          "use_vgg_features":True,\
                          "checkpoint":True,\
-                         "model_dir":ROOT_PATH+"checkpoints_try",\
-                         "devices":["/cpu:0","/cpu:0"],\
-                         "summary_dir":ROOT_PATH+"tensorboard_try"
+                         "model_dir":ROOT_PATH+"checkpoints_vgg_features",\
+                         "devices":["/cpu:0","/gpu:0"],\
+                         "summary_dir":ROOT_PATH+"tensorboard_vgg_features"
                          }
 
     train(base_model_config)
