@@ -55,7 +55,7 @@ class data_loader(object):
         image_float = tf.image.convert_image_dtype(image_decoded, dtype=tf.float32)
         image_normalized = self.global_contrast_normalization(image_float)
         image_resized = tf.image.resize_image_with_crop_or_pad(image_normalized, 224, 224)
-        return image_resized, label
+        return img_name,image_resized, label
 
     def _parse_function_train(self,img_name,label):
         """
@@ -74,7 +74,7 @@ class data_loader(object):
             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
             image = tf.image.random_hue(image, max_delta=0.2)
             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
-        return image, label
+        return img_name,image,label
 
     def data_loader_train(self,BATCH_SIZE,devices,VGG_WEIGHTS_FILE,use_pretained_vgg = False,buffer_size = 104):
         """
@@ -101,7 +101,7 @@ class data_loader(object):
 
             iterator = tf.data.Iterator.from_structure(train_dataset.output_types,train_dataset.output_shapes)
 
-            next_data,next_labels = iterator.get_next()
+            next_names,next_data,next_labels = iterator.get_next()
 
         if use_pretained_vgg:
             with tf.device(devices[1]):
@@ -112,4 +112,4 @@ class data_loader(object):
         train_op = iterator.make_initializer(train_dataset)
         val_op = iterator.make_initializer(val_dataset)
 
-        return [next_data,vgg_features,next_labels,train_op,val_op]
+        return [next_names,next_data,vgg_features,next_labels,train_op,val_op]
