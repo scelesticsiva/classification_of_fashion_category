@@ -7,3 +7,4 @@ dummy.py
 pre_trained/vgg16.npy
 pre_trained/__pycache__/
 vgg_features.npy
+utils/__pycache__/

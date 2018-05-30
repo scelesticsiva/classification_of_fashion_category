@@ -26,31 +26,33 @@ def test(model_config):
         restorer.restore(sess,model_config["model_dir"]+"/checkpoint.ckpt")
         sess.run(test_op)
         ACCURACY_LIST,LOSS_LIST,MLABELS,MPREDICTIONS = [],[],[],[]
-        try:
-            while True:
-                feed_dict_ = {model_obj.train_bool:0,model_obj.keep_probability:1.0}
-                acc_,loss_,m_labels,m_predictions = sess.run([model["acc"],model["loss"],model["labels"],\
-                                                              model["predictions"]],feed_dict=feed_dict_)
-                ACCURACY_LIST.append(acc_)
-                LOSS_LIST.append(loss_)
-                MLABELS += m_labels.tolist()
-                MPREDICTIONS += m_predictions.tolist()
-        except:
-            print("Done testing")
-            eval = evaluation_metrics.metrics(MLABELS,MPREDICTIONS)
-            print("********** Testing Results ***********")
-            print("Accuracy:",np.mean(ACCURACY_LIST),"|","Loss:",np.mean(LOSS_LIST))
-            print("Precision:",eval.precision)
-            print("Recall:",eval.recall)
-            print("F1 score:",eval.f1score)
-            print("Confusion Matrix:","\n")
-            print(eval.confusion_mat,"\n")
-            print("**************************************")
+        #try:
+        while True:
+            feed_dict_ = {model_obj.train_bool:0,model_obj.keep_probability:1.0}
+            acc_,loss_,m_labels,m_predictions = sess.run([model["acc"],model["loss"],model["labels"],\
+                                                          model["predictions"]],feed_dict=feed_dict_)
+            ACCURACY_LIST.append(acc_)
+            LOSS_LIST.append(loss_)
+            MLABELS += m_labels.tolist()
+            MPREDICTIONS += m_predictions.tolist()
+            break
+        #except:
+        print("Done testing","\n")
+        eval = evaluation_metrics.metrics(MLABELS,MPREDICTIONS)
+        print("********** Testing Results ***********")
+        print("Accuracy:",np.mean(ACCURACY_LIST),"|","Loss:",np.mean(LOSS_LIST))
+        print("Precision:",eval.precision)
+        print("Recall:",eval.recall)
+        print("F1 score:",eval.f1score)
+        print("Confusion Matrix:","\n")
+        print(eval.confusion_mat,"\n")
+        print(eval.correct_predictions)
+        print("**************************************")
 
 
 
 if __name__ == "__main__":
-    model_config = {"batch_size": 26, \
+    model_config = {"batch_size": 2, \
                      "optimizer": tf.train.AdamOptimizer, \
                      "lr": 0.0001, \
                      "lambda_":0.001,\
