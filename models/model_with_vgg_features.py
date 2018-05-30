@@ -63,20 +63,20 @@ class vgg_features_model(object):
                 conv_3_b = self.biases_("conv_3b",[128])
 
             with tf.name_scope("full_1"):
-                full_1_w = self.weights_("full_1w",[28*28*128,128])
-                full_1_b = self.biases_("full_1b",[128])
+                full_1_w = self.weights_("full_1w",[28*28*128,256])
+                full_1_b = self.biases_("full_1b",[256])
 
             with tf.name_scope("full_2"):
-                full_2_w = self.weights_("full_2w",[128,64])
-                full_2_b = self.biases_("full_2b",[64])
+                full_2_w = self.weights_("full_2w",[256,128])
+                full_2_b = self.biases_("full_2b",[128])
 
             with tf.name_scope("final"):
-                full_3_w = self.weights_("full_3w",[128,3])
+                full_3_w = self.weights_("full_3w",[256,3])
                 full_3_b = self.biases_("full_3b",[3])
 
             with tf.name_scope("vgg_features"):
-                full_vgg_1_w = self.weights_("full_vgg_1w",[4096,64])
-                full_vgg_1_b = self.biases_("full_vgg_1b",[64])
+                full_vgg_1_w = self.weights_("full_vgg_1w",[4096,128])
+                full_vgg_1_b = self.biases_("full_vgg_1b",[128])
 
         with tf.device(self.devices[1]):
             with tf.name_scope("conv_1") as conv_1_scope:

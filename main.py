@@ -72,8 +72,8 @@ def train(base_model_config):
                 saver.save(sess,base_model_config["model_dir"]+"/checkpoint.ckpt")
 
 if __name__ == "__main__":
-    base_model_config = {"epochs": 100, \
-                         "batch_size": 52, \
+    base_model_config = {"epochs": 50, \
+                         "batch_size": 26, \
                          "optimizer": tf.train.AdamOptimizer, \
                          "lr": 0.0001, \
                          "lambda_":0.001,\
@@ -81,9 +81,9 @@ if __name__ == "__main__":
                          "dropout": 0.6,\
                          "use_vgg_features":True,\
                          "checkpoint":True,\
-                         "model_dir":ROOT_PATH+"checkpoints_vgg_features",\
+                         "model_dir":ROOT_PATH+"checkpoints_vgg_features_hyper",\
                          "devices":["/cpu:0","/gpu:0"],\
-                         "summary_dir":ROOT_PATH+"tensorboard_vgg_features"
+                         "summary_dir":ROOT_PATH+"tensorboard_vgg_features_hyper"
                          }
 
     train(base_model_config)

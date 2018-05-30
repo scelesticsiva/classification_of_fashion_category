@@ -111,8 +111,8 @@ class data_loader(object):
             next_names,next_data,next_labels = iterator.get_next()
 
         if use_pretained_vgg:
-            with tf.device(devices[1]):
-                vgg_features = pre_trained_vgg.Vgg16(devices,VGG_WEIGHTS_FILE).build(next_data)
+            #with tf.device(devices[1]):
+            vgg_features = pre_trained_vgg.Vgg16(devices,VGG_WEIGHTS_FILE).build(next_data)
         else:
             vgg_features = None
 
@@ -145,8 +145,8 @@ class data_loader(object):
             test_next_names,test_next_data,test_next_labels = test_iterator.get_next()
 
         if use_pretrained_vgg:
-            with tf.device(devices[1]):
-                test_vgg_features = pre_trained_vgg.Vgg16(devices,VGG_WEIGHTS_FILE).build(test_next_data)
+            #with tf.device(devices[1]):
+            test_vgg_features = pre_trained_vgg.Vgg16(devices,VGG_WEIGHTS_FILE).build(test_next_data)
         else:
             test_vgg_features = None
 
