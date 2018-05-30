@@ -116,4 +116,5 @@ class vgg_features_model(object):
             self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)
 
         return {"inputs":[self.x,self.y],"output":self.output,"optimizer":self.optimizer,\
-                "acc":self.calculated_acc,"loss":self.calculated_loss,"summary":self.model_summary}
+                "acc":self.calculated_acc,"loss":self.calculated_loss,"summary":self.model_summary,\
+                "labels":self.y,"predictions":self.output}
