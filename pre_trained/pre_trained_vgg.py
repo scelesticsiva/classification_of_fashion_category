@@ -13,7 +13,7 @@ class Vgg16:
 
     def build(self, rgb):
         rgb_scaled = rgb * 255.0
-        bgr = rgb[..., ::-1]
+        bgr = rgb_scaled[..., ::-1]
         means = tf.stack([tf.constant(VGG_MEAN[0], shape=[224, 224]), tf.constant(VGG_MEAN[1], shape=[224, 224]),
                           tf.constant(VGG_MEAN[2], shape=[224, 224])], axis=2)
         bgr = tf.subtract(bgr,means)
