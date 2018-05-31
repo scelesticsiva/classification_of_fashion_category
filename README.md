@@ -13,27 +13,45 @@ To install tensorflow GPU version follow the instructions [here](https://www.ten
 
 ## Using pre - trained model
 
----
-
 To use my pre-trained model, you need to have a folder of images and a text file containing
 path to each of those images with the label in their names,
 
 Labels file can look something like this(you do not need to worry about the category labels,because I am taking the labels from 
 the file name - in this example the label of the image is "Jeans"),
+
 ```
 89222
 image_name  category_label
 img/Mineral_Wash_Skinny_Jeans/img_00000001.jpg                         26
 ```
+
 To use a pretained model, run the following code with the test labels file as command
 line argument (make sure that the path in the labels files either contains the full path to the images
 or relative path to this directory),
-```bash
+
+```
 ./test.sh <path to test labels file>
 ``` 
+
 if you have tensorflow GPU installed, you can run the following script,
-```bash
+
+```
 ./test.sh <path to test labels file> use_gpu
+```
+
+## Training your own network
+
+You can use the train python script to train your own model, to run the 
+training using the default settings, you can run the following command
+
+```
+./train.sh <path to train labels file>
+```
+
+If you have got tensorflow GPU installed, you can use the following command,
+
+```
+./train.sh <path to train labels file> use_gpu
 ```
 
 
