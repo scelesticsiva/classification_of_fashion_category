@@ -8,8 +8,6 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 from pre_trained import pre_trained_vgg
 
-#VGG_WEIGHTS_FILE = "/Users/siva/Documents/falconai/classification_of_fashion_category/pre_trained/vgg16.npy"
-
 class data_loader(object):
     def __init__(self,filename,test = False):
         """

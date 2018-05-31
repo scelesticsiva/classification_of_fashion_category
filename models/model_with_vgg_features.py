@@ -6,7 +6,13 @@ import tensorflow as tf
 
 class vgg_features_model(object):
     def __init__(self,config,x_,vgg_features,y_):
-        #self.epochs = config["epochs"]
+        """
+        stores the hyperparameters as class attributes
+        :param config: [dict] contains all the information for training/testing
+        :param x_: [tensor] contains the image batch
+        :param vgg_features: [tensor] contains vgg features for the current image batch
+        :param y_:[tensor] contains the labels batch
+        """
         self.batch_size = config["batch_size"]
         self.optimizer_ = config["optimizer"]
         self.lr = config["lr"]
@@ -49,6 +55,7 @@ class vgg_features_model(object):
 
     def inference(self):
 
+        #all the variables stay in CPU
         with tf.device(self.devices[0]):
             with tf.name_scope("conv_1"):
                 conv_1_w = self.weights_("conv_1w",[3,3,3,64])
@@ -78,6 +85,7 @@ class vgg_features_model(object):
                 full_vgg_1_w = self.weights_("full_vgg_1w",[4096,64])
                 full_vgg_1_b = self.biases_("full_vgg_1b",[64])
 
+        #all the convolution and matrix multiplication happening in GPU
         with tf.device(self.devices[1]):
             with tf.name_scope("conv_1") as conv_1_scope:
                 conv_1 = self.conv_max_pool_layer(self.x,conv_1_w,conv_1_b,self.keep_probability,conv_1_scope)
@@ -111,6 +119,7 @@ class vgg_features_model(object):
         tf.summary.scalar("accuracy", self.calculated_acc)
         self.model_summary = tf.summary.merge_all()
 
+        #for batch normalization
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
             self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)

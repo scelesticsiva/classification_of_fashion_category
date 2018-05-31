@@ -77,10 +77,6 @@ class base_model(object):
                 conv_2 = self.conv_max_pool_layer(conv_1,conv_2_w,conv_2_b,self.keep_probability,conv_2_scope)
             with tf.name_scope("conv_3") as conv_3_scope:
                 conv_3 = self.conv_max_pool_layer(conv_2,conv_3_w,conv_3_b,self.keep_probability,conv_3_scope)
-            # conv_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_1, conv_2_w), conv_2_b)),self.keep_probability)
-            # max_pool_conv_2 = self.max_pool(conv_2)
-            # conv_3 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(self.conv_2d(max_pool_conv_2, conv_3_w), conv_3_b)),self.keep_probability)
-            # max_pool_conv_3 = self.max_pool(conv_3)
             reshaped_last_conv = tf.reshape(conv_3, (-1, 28*28*128))
             full_1 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(reshaped_last_conv, full_1_w), full_1_b)),self.keep_probability)
             full_2 = tf.nn.dropout(tf.nn.relu(tf.nn.bias_add(tf.matmul(full_1, full_2_w), full_2_b)),self.keep_probability)
@@ -94,15 +90,6 @@ class base_model(object):
             self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)
 
         return {"inputs":[self.x,self.y],"output":self.output,"optimizer":self.optimizer,"acc":self.calculated_acc,"loss":self.calculated_loss}
-
-    # def calculate_loss(self):
-    #     self.calculated_loss = tf.reduce_mean(self.loss(logits = self.output,labels = self.y))
-    #
-    # def calculate_accuracy(self):
-    #     self.calculated_acc = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(self.output,axis = 1),tf.argmax(self.y,axis = 1)),tf.float32))
-    #
-    # def optimize(self):
-    #     self.optimizer = self.optimizer_(self.lr).minimize(self.calculated_loss)
 
 
 

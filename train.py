@@ -9,13 +9,19 @@ from models.simple_vgg_features_model import simple_vgg_features_model
 from models.batch_norm_model import  batch_norm_model
 import tensorflow as tf
 import numpy as np
+import argparse
 
-#ROOT_PATH = "/Users/siva/Documents/falconai/"
-ROOT_PATH = "/home/scelesticsiva/Documents/falconai/"
-TRAIN_FILE_NAME = ROOT_PATH+"training.txt"
-VGG_WEIGHTS_FILE = ROOT_PATH+"classification_of_fashion_category/pre_trained/vgg16.npy"
 
-def train(base_model_config):
+def train(base_model_config,TRAIN_FILE_NAME,VGG_WEIGHTS_FILE):
+    """
+    Trains the network with vgg features and images
+    :param base_model_config: [dict] contains all the information for training
+    :param TRAIN_FILE_NAME: [str] path to the train labels file which contains path to images with labels in their names
+    :param VGG_WEIGHTS_FILE: [str] path to vgg weights file
+    :return: None
+    """
+
+    #loading the data
     _,data,vgg_features,labels,train_op,val_op = data_loader(TRAIN_FILE_NAME).data_loader_train(base_model_config["batch_size"],\
                                                                                               base_model_config["devices"], \
                                                                                               VGG_WEIGHTS_FILE, \
@@ -34,7 +40,7 @@ def train(base_model_config):
     if base_model_config["checkpoint"]:
         saver = tf.train.Saver()
 
-
+    #starting the tensorflow session to train
     with tf.Session() as sess:
         train_saver = tf.summary.FileWriter(base_model_config["summary_dir"] + "/train",sess.graph)
         test_saver = tf.summary.FileWriter(base_model_config["summary_dir"] + "/test",sess.graph)
@@ -67,11 +73,26 @@ def train(base_model_config):
             except:
                 print("Val Accuracy:", np.mean(TEST_ACCURACY_LIST), "|", "Val Loss:", np.mean(TEST_LOSS_LIST))
 
+            #creating checkpoints for model rentention
             if base_model_config["checkpoint"]:
                 print("Saving model...")
                 saver.save(sess,base_model_config["model_dir"]+"/checkpoint.ckpt")
 
 if __name__ == "__main__":
+
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument("--train_labels", type=str, \
+                                 help="Path to the test labels file")
+    argument_parser.add_argument("--run_in_gpu", type=bool, default=False, \
+                                 help="If you installed tensorflow GPU you can turn this to True")
+    argument_parser.add_argument("--vgg_pretrained_weights", type=str, \
+                                 help="Path to VGG weights file")
+    args = argument_parser.parse_args()
+    if args.run_in_gpu:
+        devices = ["/cpu:0", "/gpu:0"]
+    else:
+        devices = ["/cpu:0", "/cpu:0"]
+
     base_model_config = {"epochs": 50, \
                          "batch_size": 26, \
                          "optimizer": tf.train.AdamOptimizer, \
@@ -81,10 +102,10 @@ if __name__ == "__main__":
                          "dropout": 0.6,\
                          "use_vgg_features":True,\
                          "checkpoint":True,\
-                         "model_dir":ROOT_PATH+"checkpoints_vgg_features_hyper",\
-                         "devices":["/cpu:0","/gpu:0"],\
-                         "summary_dir":ROOT_PATH+"tensorboard_vgg_features_hyper"
+                         "model_dir":"checkpoints_vgg_features_hyper",\
+                         "devices":devices,\
+                         "summary_dir":"tensorboard_vgg_features_hyper"
                          }
 
-    train(base_model_config)
+    train(base_model_config,args.train_labels,args.vgg_pretrained_weights)
 

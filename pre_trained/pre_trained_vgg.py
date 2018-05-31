@@ -1,5 +1,6 @@
 """
 @Modified by - Sivaramakrishnan
+taken from (https://github.com/machrisaa/tensorflow-vgg)
 """
 import tensorflow as tf
 import numpy as np
@@ -12,6 +13,11 @@ class Vgg16:
         self.data_dict = np.load(vgg16_npy_path, encoding='latin1').item()
 
     def build(self, rgb):
+        """
+        Build and loads the pre-trained vgg weights
+        :param rgb: image in RGB format
+        :return: fc-7 layer output for each image being given as input
+        """
         rgb_scaled = rgb * 255.0
         bgr = rgb_scaled[..., ::-1]
         means = tf.stack([tf.constant(VGG_MEAN[0], shape=[224, 224]), tf.constant(VGG_MEAN[1], shape=[224, 224]),
@@ -47,10 +53,6 @@ class Vgg16:
 
         self.fc7 = self.fc_layer(self.relu6, "fc7")
         self.relu7 = tf.nn.relu(self.fc7)
-
-        #self.fc8 = self.fc_layer(self.relu7, "fc8")
-
-        #self.prob = tf.nn.softmax(self.fc8, name="prob")
 
         self.data_dict = None
 

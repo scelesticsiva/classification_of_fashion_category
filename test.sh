@@ -1,5 +1,7 @@
 #!/bin/bash
-
+#
+# Author - Sivaramakrishnan
+#
 #The main script to test the pre trained model
 TRAINED_MODEL_URL="https://www.dropbox.com/s/dzcymeotbkb6i5g/trained_model.tar.gz?dl=1"
 VGG_PRETRAINED_WEIGHTS="https://www.dropbox.com/s/o0t8wuqbu64eazh/vgg16.npy?dl=1"
@@ -22,8 +24,6 @@ if [ "$2" == 'use_gpu' ] ; then
 else
     python3 test.py --test_labels "$1" --vgg_pretrained_weights $VGG_FILE
 fi
-
-echo $GPU
 
 
 

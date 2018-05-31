@@ -6,6 +6,9 @@ import numpy as np
 from sklearn.metrics import f1_score,recall_score,precision_score,confusion_matrix
 
 class metrics(object):
+    """
+    Class which calculates different metrics which can be extended to include more metrics
+    """
     def __init__(self,labels,predictions):
         self.labels = np.argmax(labels,axis = 1)
         self.predictions = np.argmax(predictions,axis = 1)
@@ -27,6 +30,10 @@ class metrics(object):
         self.confusion_mat = confusion_matrix(self.labels,self.predictions)
 
     def calculate_correct_predictions(self):
+        """
+        Calculating how many images got correctly classified in each class
+        :return: None
+        """
         correct_indices = np.equal(self.labels,self.predictions)
         correct_predictions = self.labels[correct_indices]
         count_correct_predictions = Counter(correct_predictions)

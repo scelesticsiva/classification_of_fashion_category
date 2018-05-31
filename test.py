@@ -9,6 +9,13 @@ from utils import evaluation_metrics
 import argparse
 
 def test(model_config,TEST_FILE_NAME,VGG_WEIGHTS_FILE):
+    """
+    Loads the pre-trained model from the checkpoint folder and give test results
+    :param model_config: [dict] containing all the information for testing
+    :param TEST_FILE_NAME: [str] test file name that contains paths to images and their names indicating their labels
+    :param VGG_WEIGHTS_FILE: [str] path to vgg weights file
+    :return: None
+    """
     _,data,vgg_features,labels,test_op = data_loader(TEST_FILE_NAME,True).data_loader_test(model_config["batch_size"],\
                                                                                       model_config["devices"],\
                                                                                       VGG_WEIGHTS_FILE,\
@@ -19,6 +26,7 @@ def test(model_config,TEST_FILE_NAME,VGG_WEIGHTS_FILE):
     restorer = tf.train.Saver()
 
     with tf.Session() as sess:
+        #loading the model
         restorer.restore(sess,model_config["model_dir"]+"/checkpoint.ckpt")
         sess.run(test_op)
         ACCURACY_LIST,LOSS_LIST,MLABELS,MPREDICTIONS = [],[],[],[]
@@ -32,6 +40,7 @@ def test(model_config,TEST_FILE_NAME,VGG_WEIGHTS_FILE):
                 MLABELS += m_labels.tolist()
                 MPREDICTIONS += m_predictions.tolist()
         except:
+            #displaying all the results
             print("Done testing","\n")
             eval = evaluation_metrics.metrics(MLABELS,MPREDICTIONS)
             print("********** Testing Results ***********")
