@@ -6,14 +6,9 @@ import numpy as np
 from data.load_data import data_loader
 from models.model_with_vgg_features import vgg_features_model
 from utils import evaluation_metrics
-import sys
+import argparse
 
-#ROOT_PATH = "/Users/siva/Documents/falconai/"
-ROOT_PATH = "/home/scelesticsiva/Documents/falconai/"
-TEST_FILE_NAME = ROOT_PATH+"classification_of_fashion_category/"+sys.argv[1]
-VGG_WEIGHTS_FILE = ROOT_PATH+"classification_of_fashion_category/pre_trained/vgg16.npy"
-
-def test(model_config):
+def test(model_config,TEST_FILE_NAME,VGG_WEIGHTS_FILE):
     _,data,vgg_features,labels,test_op = data_loader(TEST_FILE_NAME,True).data_loader_test(model_config["batch_size"],\
                                                                                       model_config["devices"],\
                                                                                       VGG_WEIGHTS_FILE,\
@@ -52,13 +47,26 @@ def test(model_config):
 
 
 if __name__ == "__main__":
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument("--test_labels",type = str,\
+                                 help="Path to the test labels file")
+    argument_parser.add_argument("--run_in_gpu",type = bool,default=False,\
+                                 help="If you installed tensorflow GPU you can turn this to True")
+    argument_parser.add_argument("--vgg_pretrained_weights",type = str,\
+                                 help = "Path to VGG weights file")
+    args = argument_parser.parse_args()
+    if args.run_in_gpu:
+        devices = ["/cpu:0","/gpu:0"]
+    else:
+        devices = ["/cpu:0","/cpu:0"]
+
     model_config = {"batch_size": 26, \
                      "optimizer": tf.train.AdamOptimizer, \
                      "lr": 0.0001, \
                      "lambda_":0.001,\
                      "loss": tf.nn.softmax_cross_entropy_with_logits, \
                      "use_vgg_features":True,\
-                     "model_dir":ROOT_PATH+"checkpoints_vgg_features",\
-                     "devices":["/cpu:0","/gpu:0"],\
+                     "model_dir":"checkpoints_vgg_features",\
+                     "devices":devices,\
                      }
-    test(model_config)
+    test(model_config,args.test_labels,args.vgg_pretrained_weights)
