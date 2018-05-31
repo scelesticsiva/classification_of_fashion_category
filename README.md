@@ -12,6 +12,7 @@ If you want to run the model in GPU, you need tensorflow for GPU installed.
 To install tensorflow GPU version follow the instructions [here](https://www.tensorflow.org/install/install_linux)
 
 ## Using pre - trained model
+
 ---
 
 To use my pre-trained model, you need to have a folder of images and a text file containing
